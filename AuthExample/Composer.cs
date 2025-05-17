@@ -5,10 +5,12 @@ using AuthExample.Database;
 using AuthExample.Extensions;
 using AuthExample.Politics;
 using AuthExample.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace AuthExample;
 
@@ -121,6 +123,8 @@ public static class Composer
                 });
         });
 
+        services.AddValidatorsFromAssembly(typeof(Composer).Assembly);
+        services.AddFluentValidationAutoValidation();
         services.AddControllers();
 
         return services;
