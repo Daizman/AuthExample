@@ -10,16 +10,6 @@ public class AuthService(
     AppDbContext dbContext
 ) : IAuthService
 {
-    public bool LogIn(LogInDto dto)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool LogOut(Guid userId)
-    {
-        throw new NotImplementedException();
-    }
-
     public Guid SignUp(SignUpDto dto)
     {
         var user = new User
