@@ -13,4 +13,3 @@ Step-by-step we integrate the Entity Framework Core into the application and sho
 
 - `main`: The base branch with the application which will be improved step by step.
 - `feature/authentication`: The branch with the authentication feature implemented.
-- `feature/roles`: The branch with the roles feature implemented.
