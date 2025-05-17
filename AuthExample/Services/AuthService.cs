@@ -3,6 +3,7 @@ using AuthExample.Contracts;
 using AuthExample.Database;
 using AuthExample.Models;
 using AuthExample.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthExample.Services;
 
@@ -11,7 +12,7 @@ public class AuthService(
     IJwtTokenGenerator jwtTokenGenerator
 ) : IAuthService
 {
-    public JwtTokenVm? LogIn(LogInDto dto)
+    public LogInResponse? LogIn(LogInDto dto)
     {
         var user = dbContext.Users.FirstOrDefault(x => x.UserName == dto.UserName);
         if (user is null)
@@ -19,10 +20,10 @@ public class AuthService(
         if (!PasswordHasher.VerifyPassword(user.Password, dto.Password))
             return null;
 
-        var token = UpdateToken(user);
+        var (jwt, refresh) = UpdateToken(user);
         dbContext.SaveChanges();
 
-        return token?.ToJwtTokenVm();
+        return CreateResponse(jwt, refresh);
     }
 
     public bool LogOut(Guid userId)
@@ -42,7 +43,7 @@ public class AuthService(
         return true;
     }
 
-    public JwtTokenVm SignUp(SignUpDto dto)
+    public LogInResponse SignUp(SignUpDto dto)
     {
         var user = new User
         {
@@ -54,11 +55,11 @@ public class AuthService(
 
         dbContext.SaveChanges();
 
-        var token = UpdateToken(user);
+        var (jwt, refresh) = UpdateToken(user);
 
         dbContext.SaveChanges();
 
-        return token.ToJwtTokenVm();
+        return CreateResponse(jwt, refresh);
     }
 
     public bool VerifyToken(Guid userId, string token)
@@ -70,7 +71,36 @@ public class AuthService(
         return jwtToken.Token == token && jwtToken.ExpiresAt > DateTime.UtcNow;
     }
 
-    private JwtToken UpdateToken(User user)
+    public LogInResponse? Refresh(string refreshToken)
+    {
+        var existingRefreshToken = dbContext.RefreshTokens
+            .Include(rt => rt.User)
+            .FirstOrDefault(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
+
+        if (existingRefreshToken is null)
+            return null;
+
+        var (jwt, refresh) = UpdateToken(existingRefreshToken.User);
+
+        dbContext.SaveChanges();
+
+        return CreateResponse(jwt, refresh);
+    }
+
+    public void Revoke(string refreshToken)
+    {
+        var existingRefreshToken = dbContext.RefreshTokens
+            .Include(rt => rt.User)
+            .FirstOrDefault(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
+
+        if (existingRefreshToken is null)
+            return;
+
+        dbContext.Remove(existingRefreshToken);
+        dbContext.SaveChanges();
+    }
+
+    private (JwtToken Jwt, RefreshToken Refresh) UpdateToken(User user)
     {
         var token = jwtTokenGenerator.Generate(user);
         var oldToken = dbContext.JwtTokens.FirstOrDefault(t => t.UserId == user.Id);
@@ -80,6 +110,12 @@ public class AuthService(
         }
         dbContext.JwtTokens.Add(token);
 
-        return token;
+        var refreshToken = jwtTokenGenerator.GetRefreshToken(user.Id);
+        dbContext.Add(refreshToken);
+
+        return (token, refreshToken);
     }
+
+    private static LogInResponse CreateResponse(JwtToken jwt, RefreshToken refresh)
+        => new(jwt.UserId, jwt.Token, refresh.Token);
 }

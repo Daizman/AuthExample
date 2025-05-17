@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthExample.Database.Configurations;
 
-public class PostEntityConfiguration : IEntityTypeConfiguration<Post>
+public sealed class PostEntityConfiguration : IEntityTypeConfiguration<Post>
 {
     public void Configure(EntityTypeBuilder<Post> builder)
     {

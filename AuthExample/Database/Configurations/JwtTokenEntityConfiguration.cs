@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthExample.Database.Configurations;
 
-public class JwtTokenEntityConfiguration : IEntityTypeConfiguration<JwtToken>
+public sealed class JwtTokenEntityConfiguration : IEntityTypeConfiguration<JwtToken>
 {
     public void Configure(EntityTypeBuilder<JwtToken> builder)
     {

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using AuthExample.Abstractions;
 using AuthExample.Configurations;
 using AuthExample.Models;
@@ -49,4 +50,11 @@ public class JwtTokenGenerator(IOptions<JwtOptions> options) : IJwtTokenGenerato
             ExpiresAt = expiration,
         };
     }
+
+    public RefreshToken GetRefreshToken(Guid userId) => new()
+    {
+        Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+        UserId = userId,
+        ExpiresAt = DateTime.UtcNow.AddDays(7),
+    };
 }
