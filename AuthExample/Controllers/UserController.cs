@@ -1,23 +1,26 @@
 using AuthExample.Abstractions;
 using AuthExample.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthExample.Controllers;
 
-public class UserController(IAuthService userRepository) : BaseController
+public class UserController(IAuthService authService) : BaseController
 {
+    [AllowAnonymous]
     [HttpPost("signup")]
-    public ActionResult<Guid> SignUp([FromBody] SignUpDto dto)
+    public ActionResult<JwtTokenVm> SignUp([FromBody] SignUpDto dto)
     {
-        var userId = userRepository.SignUp(dto);
-        return Ok(userId);
+        var token = authService.SignUp(dto);
+        return Ok(token);
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
-    public ActionResult<bool> LogIn([FromBody] LogInDto dto)
+    public ActionResult<JwtTokenVm> LogIn([FromBody] LogInDto dto)
     {
-        var result = userRepository.LogIn(dto);
-        if (!result)
+        var result = authService.LogIn(dto);
+        if (result is null)
         {
             return NotFound();
         }
@@ -27,7 +30,7 @@ public class UserController(IAuthService userRepository) : BaseController
     [HttpPost("logout")]
     public ActionResult<bool> LogOut([FromBody] Guid userId)
     {
-        var result = userRepository.LogOut(userId);
+        var result = authService.LogOut(userId);
         if (!result)
         {
             return NotFound();
