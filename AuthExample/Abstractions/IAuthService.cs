@@ -4,5 +4,8 @@ namespace AuthExample.Abstractions;
 
 public interface IAuthService
 {
-    Guid SignUp(SignUpDto dto);
+    JwtTokenVm SignUp(SignUpDto dto);
+    JwtTokenVm? LogIn(LogInDto dto);
+    bool LogOut(Guid userId);
+    bool VerifyToken(Guid userId, string token);
 }

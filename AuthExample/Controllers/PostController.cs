@@ -1,5 +1,7 @@
 using AuthExample.Abstractions;
 using AuthExample.Contracts;
+using AuthExample.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthExample.Controllers;
@@ -9,7 +11,12 @@ public class PostController(IPostRepository postRepository) : BaseController
     [HttpPost]
     public ActionResult<int> CreatePost([FromBody] CreatePostDto dto)
     {
-        var postId = postRepository.CreatePost(dto);
+        var userId = HttpContext.ExtractUserIdFromClaims();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+        var postId = postRepository.CreatePost(dto, userId.Value);
         return CreatedAtAction(nameof(GetPost), new { id = postId }, postId);
     }
 
@@ -31,6 +38,7 @@ public class PostController(IPostRepository postRepository) : BaseController
         return Ok(posts);
     }
 
+    [Authorize(Policy = "PostsOwner")]
     [HttpDelete("{id:int}")]
     public ActionResult DeletePost(int id, [FromQuery] Guid userId)
     {

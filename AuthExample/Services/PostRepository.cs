@@ -7,9 +7,9 @@ namespace AuthExample.Services;
 
 public class PostRepository(AppDbContext dbContext) : IPostRepository
 {
-    public int CreatePost(CreatePostDto dto)
+    public int CreatePost(CreatePostDto dto, Guid userId)
     {
-        var post = dto.ToPost();
+        var post = dto.ToPost(userId);
         dbContext.Posts.Add(post);
 
         dbContext.SaveChanges();
