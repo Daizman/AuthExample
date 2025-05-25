@@ -24,7 +24,10 @@ public static class PasswordHasher
         var hashedPasswordString = Encoding.UTF8.GetString(hashedPassword);
         string[] parts = hashedPasswordString.Split('-');
         if (parts.Length != 2)
+        {
             throw new FormatException("Invalid hashed password format.");
+        }
+
         byte[] salt = Convert.FromHexString(parts[0]);
         byte[] hash = Convert.FromHexString(parts[1]);
 
@@ -37,7 +40,9 @@ public static class PasswordHasher
         }
 
         if (firstDifference)
+        {
             return false;
+        }
 
         return CryptographicOperations.FixedTimeEquals(hash, computedHash);
     }

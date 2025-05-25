@@ -2,7 +2,6 @@ using System.Security.Claims;
 using AuthExample.Abstractions;
 using AuthExample.Configurations;
 using AuthExample.Database;
-using AuthExample.Extensions;
 using AuthExample.Politics;
 using AuthExample.Services;
 using FluentValidation;

@@ -21,7 +21,9 @@ public class PostRepository(AppDbContext dbContext) : IPostRepository
     {
         var post = dbContext.Posts.FirstOrDefault(p => p.Id == id && p.UserId == userId);
         if (post is null)
+        {
             return;
+        }
 
         dbContext.Posts.Remove(post);
         dbContext.SaveChanges();
@@ -34,7 +36,9 @@ public class PostRepository(AppDbContext dbContext) : IPostRepository
             .FirstOrDefault(p => p.Id == id && p.UserId == userId);
 
         if (post is null)
+        {
             return null;
+        }
 
         return post.ToDetailedVm();
     }

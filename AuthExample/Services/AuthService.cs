@@ -16,9 +16,14 @@ public class AuthService(
     {
         var user = dbContext.Users.FirstOrDefault(x => x.UserName == dto.UserName);
         if (user is null)
+        {
             return null;
+        }
+
         if (!PasswordHasher.VerifyPassword(user.Password, dto.Password))
+        {
             return null;
+        }
 
         var (jwt, refresh) = UpdateToken(user);
         dbContext.SaveChanges();
@@ -30,7 +35,9 @@ public class AuthService(
     {
         var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
         if (user is null)
+        {
             return false;
+        }
 
         var token = dbContext.JwtTokens.FirstOrDefault(x => x.UserId == userId);
         if (token is null)
@@ -66,7 +73,9 @@ public class AuthService(
     {
         var jwtToken = dbContext.JwtTokens.FirstOrDefault(x => x.UserId == userId);
         if (jwtToken is null)
+        {
             return false;
+        }
 
         return jwtToken.Token == token && jwtToken.ExpiresAt > DateTime.UtcNow;
     }
@@ -78,7 +87,9 @@ public class AuthService(
             .FirstOrDefault(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
 
         if (existingRefreshToken is null)
+        {
             return null;
+        }
 
         var (jwt, refresh) = UpdateToken(existingRefreshToken.User);
 
@@ -94,7 +105,9 @@ public class AuthService(
             .FirstOrDefault(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
 
         if (existingRefreshToken is null)
+        {
             return;
+        }
 
         dbContext.Remove(existingRefreshToken);
         dbContext.SaveChanges();
