@@ -4,10 +4,10 @@ namespace AuthExample.Abstractions;
 
 public interface IAuthService
 {
-    LogInResponse SignUp(SignUpDto dto);
-    LogInResponse? LogIn(LogInDto dto);
-    bool LogOut(Guid userId);
-    bool VerifyToken(Guid userId, string token);
-    LogInResponse? Refresh(string refreshToken);
-    void Revoke(string refreshToken);
+    Task<LogInResponse> SignUpAsync(SignUpDto dto);
+    Task<LogInResponse?> LogInAsync(LogInDto dto);
+    Task<bool> LogOutAsync(Guid userId);
+    Task<bool> VerifyTokenAsync(Guid userId, string token);
+    Task<LogInResponse?> RefreshAsync(string refreshToken);
+    Task RevokeAsync(string refreshToken);
 }

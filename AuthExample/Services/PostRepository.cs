@@ -7,7 +7,7 @@ namespace AuthExample.Services;
 
 public class PostRepository(AppDbContext dbContext) : IPostRepository
 {
-    public int CreatePost(CreatePostDto dto, Guid userId)
+    public int CreatePostAsync(CreatePostDto dto, Guid userId)
     {
         var post = dto.ToPost(userId);
         dbContext.Posts.Add(post);
@@ -17,7 +17,7 @@ public class PostRepository(AppDbContext dbContext) : IPostRepository
         return post.Id;
     }
 
-    public void DeletePost(int id, Guid userId)
+    public void DeletePostAsync(int id, Guid userId)
     {
         var post = dbContext.Posts.FirstOrDefault(p => p.Id == id && p.UserId == userId);
         if (post is null)
@@ -29,7 +29,7 @@ public class PostRepository(AppDbContext dbContext) : IPostRepository
         dbContext.SaveChanges();
     }
 
-    public PostDetailedVm? GetPost(int id, Guid userId)
+    public PostDetailedVm? GetPostAsync(int id, Guid userId)
     {
         var post = dbContext.Posts
             .Include(p => p.User)
@@ -43,7 +43,7 @@ public class PostRepository(AppDbContext dbContext) : IPostRepository
         return post.ToDetailedVm();
     }
 
-    public PostListVm GetPosts()
+    public PostListVm GetPostsAsync()
     {
         var posts = dbContext.Posts
             .Include(p => p.User)

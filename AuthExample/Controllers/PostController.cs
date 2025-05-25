@@ -16,14 +16,14 @@ public class PostController(IPostRepository postRepository) : BaseController
         {
             return Unauthorized();
         }
-        var postId = await postRepository.CreatePost(dto, userId.Value);
+        var postId = await postRepository.CreatePostAsync(dto, userId.Value);
         return CreatedAtAction(nameof(GetPost), new { id = postId }, postId);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<PostDetailedVm>> GetPost(int id, [FromQuery] Guid userId)
     {
-        var post = await postRepository.GetPost(id, userId);
+        var post = await postRepository.GetPostAsync(id, userId);
         if (post is null)
         {
             return NotFound();
@@ -34,7 +34,7 @@ public class PostController(IPostRepository postRepository) : BaseController
     [HttpGet]
     public async Task<ActionResult<PostListVm>> GetPosts()
     {
-        var posts = await postRepository.GetPosts();
+        var posts = await postRepository.GetPostsAsync();
         return Ok(posts);
     }
 
@@ -42,7 +42,7 @@ public class PostController(IPostRepository postRepository) : BaseController
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeletePost(int id, [FromQuery] Guid userId)
     {
-        await postRepository.DeletePost(id, userId);
+        await postRepository.DeletePostAsync(id, userId);
         return NoContent();
     }
 }
