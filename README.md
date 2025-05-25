@@ -2,7 +2,7 @@
 
 An example application for .NET course. This application will be used to demonstrate the Authentication  features in .NET and how to use them in a real-world application.
 
-Step-by-step we integrate the Entity Framework Core into the application and show how to use it to perform CRUD operations on a database.
+Step-by-step we move from a very simple application without authorization with synchronous handlers without validation to the application with authorization, validation, code analyzers and asynchronous handlers.
 
 ## Prerequisites
 
