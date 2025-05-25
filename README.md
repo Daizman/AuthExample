@@ -14,3 +14,5 @@ Step-by-step we integrate the Entity Framework Core into the application and sho
 - `main`: The base branch with the application which will be improved step by step.
 - `feature/authentication`: The branch with the authentication feature implemented.
 - `feature/validation`: The branch with FluentValidation.
+- `feature/analyzers`: The branch with code analyzers.
+- `feature/async`: The branch with asynchronous methods instead of sync version.
