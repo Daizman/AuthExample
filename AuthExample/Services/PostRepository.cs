@@ -7,33 +7,33 @@ namespace AuthExample.Services;
 
 public class PostRepository(AppDbContext dbContext) : IPostRepository
 {
-    public int CreatePostAsync(CreatePostDto dto, Guid userId)
+    public async Task<int> CreatePostAsync(CreatePostDto dto, Guid userId)
     {
         var post = dto.ToPost(userId);
-        dbContext.Posts.Add(post);
+        await dbContext.Posts.AddAsync(post);
 
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
 
         return post.Id;
     }
 
-    public void DeletePostAsync(int id, Guid userId)
+    public async Task DeletePostAsync(int id, Guid userId)
     {
-        var post = dbContext.Posts.FirstOrDefault(p => p.Id == id && p.UserId == userId);
+        var post = await dbContext.Posts.FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
         if (post is null)
         {
             return;
         }
 
         dbContext.Posts.Remove(post);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
     }
 
-    public PostDetailedVm? GetPostAsync(int id, Guid userId)
+    public async Task<PostDetailedVm?> GetPostAsync(int id, Guid userId)
     {
-        var post = dbContext.Posts
+        var post = await dbContext.Posts
             .Include(p => p.User)
-            .FirstOrDefault(p => p.Id == id && p.UserId == userId);
+            .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
 
         if (post is null)
         {
@@ -43,12 +43,12 @@ public class PostRepository(AppDbContext dbContext) : IPostRepository
         return post.ToDetailedVm();
     }
 
-    public PostListVm GetPostsAsync()
+    public async Task<PostListVm> GetPostsAsync()
     {
-        var posts = dbContext.Posts
+        var posts = await dbContext.Posts
             .Include(p => p.User)
             .Select(p => p.ToVm())
-            .ToList();
+            .ToListAsync();
 
         return new PostListVm(posts);
     }

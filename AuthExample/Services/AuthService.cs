@@ -12,9 +12,9 @@ public class AuthService(
     IJwtTokenGenerator jwtTokenGenerator
 ) : IAuthService
 {
-    public LogInResponse? LogIn(LogInDto dto)
+    public async Task<LogInResponse?> LogInAsync(LogInDto dto)
     {
-        var user = dbContext.Users.FirstOrDefault(x => x.UserName == dto.UserName);
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserName == dto.UserName);
         if (user is null)
         {
             return null;
@@ -26,31 +26,31 @@ public class AuthService(
         }
 
         var (jwt, refresh) = UpdateToken(user);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
 
         return CreateResponse(jwt, refresh);
     }
 
-    public bool LogOut(Guid userId)
+    public async Task<bool> LogOutAsync(Guid userId)
     {
-        var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         if (user is null)
         {
             return false;
         }
 
-        var token = dbContext.JwtTokens.FirstOrDefault(x => x.UserId == userId);
+        var token = await dbContext.JwtTokens.FirstOrDefaultAsync(x => x.UserId == userId);
         if (token is null)
         {
             return false;
         }
         dbContext.Remove(token);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
 
         return true;
     }
 
-    public LogInResponse SignUp(SignUpDto dto)
+    public async Task<LogInResponse> SignUpAsync(SignUpDto dto)
     {
         var user = new User
         {
@@ -58,20 +58,20 @@ public class AuthService(
             Password = PasswordHasher.HashPassword(dto.Password),
         };
 
-        dbContext.Users.Add(user);
+        await dbContext.AddAsync(user);
 
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
 
         var (jwt, refresh) = UpdateToken(user);
 
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
 
         return CreateResponse(jwt, refresh);
     }
 
-    public bool VerifyToken(Guid userId, string token)
+    public async Task<bool> VerifyTokenAsync(Guid userId, string token)
     {
-        var jwtToken = dbContext.JwtTokens.FirstOrDefault(x => x.UserId == userId);
+        var jwtToken = await dbContext.JwtTokens.FirstOrDefaultAsync(x => x.UserId == userId);
         if (jwtToken is null)
         {
             return false;
@@ -80,11 +80,11 @@ public class AuthService(
         return jwtToken.Token == token && jwtToken.ExpiresAt > DateTime.UtcNow;
     }
 
-    public LogInResponse? Refresh(string refreshToken)
+    public async Task<LogInResponse?> RefreshAsync(string refreshToken)
     {
-        var existingRefreshToken = dbContext.RefreshTokens
+        var existingRefreshToken = await dbContext.RefreshTokens
             .Include(rt => rt.User)
-            .FirstOrDefault(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
 
         if (existingRefreshToken is null)
         {
@@ -93,16 +93,16 @@ public class AuthService(
 
         var (jwt, refresh) = UpdateToken(existingRefreshToken.User);
 
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
 
         return CreateResponse(jwt, refresh);
     }
 
-    public void Revoke(string refreshToken)
+    public async Task RevokeAsync(string refreshToken)
     {
-        var existingRefreshToken = dbContext.RefreshTokens
+        var existingRefreshToken = await dbContext.RefreshTokens
             .Include(rt => rt.User)
-            .FirstOrDefault(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.ExpiresAt > DateTime.UtcNow);
 
         if (existingRefreshToken is null)
         {
@@ -110,7 +110,7 @@ public class AuthService(
         }
 
         dbContext.Remove(existingRefreshToken);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
     }
 
     private (JwtToken Jwt, RefreshToken Refresh) UpdateToken(User user)

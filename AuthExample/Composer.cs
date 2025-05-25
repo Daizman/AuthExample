@@ -63,7 +63,10 @@ public static class Composer
                         if (
                             userId is null
                             || context.SecurityToken.ValidTo < DateTime.UtcNow
-                            || !authService.VerifyToken(Guid.Parse(userId), context.SecurityToken.UnsafeToString()))
+                            || !authService.VerifyTokenAsync(
+                                Guid.Parse(userId),
+                                context.SecurityToken.UnsafeToString())
+                                .Result)
                         {
                             context.Fail("Unauthorized");
                         }
