@@ -9,7 +9,7 @@ namespace AuthExample.Controllers;
 public class PostController(IPostRepository postRepository) : BaseController
 {
     [HttpPost]
-    public ActionResult<int> CreatePost([FromBody] CreatePostDto dto)
+    public async Task<ActionResult<int>> CreatePost([FromBody] CreatePostDto dto)
     {
         var userId = HttpContext.ExtractUserIdFromClaims();
         if (userId is null)
@@ -21,7 +21,7 @@ public class PostController(IPostRepository postRepository) : BaseController
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<PostDetailedVm> GetPost(int id, [FromQuery] Guid userId)
+    public async Task<ActionResult<PostDetailedVm>> GetPost(int id, [FromQuery] Guid userId)
     {
         var post = postRepository.GetPost(id, userId);
         if (post is null)
@@ -32,7 +32,7 @@ public class PostController(IPostRepository postRepository) : BaseController
     }
 
     [HttpGet]
-    public ActionResult<PostListVm> GetPosts()
+    public async Task<ActionResult<PostListVm>> GetPosts()
     {
         var posts = postRepository.GetPosts();
         return Ok(posts);
@@ -40,7 +40,7 @@ public class PostController(IPostRepository postRepository) : BaseController
 
     [Authorize(Policy = "PostsOwner")]
     [HttpDelete("{id:int}")]
-    public ActionResult DeletePost(int id, [FromQuery] Guid userId)
+    public async Task<ActionResult> DeletePost(int id, [FromQuery] Guid userId)
     {
         postRepository.DeletePost(id, userId);
         return NoContent();

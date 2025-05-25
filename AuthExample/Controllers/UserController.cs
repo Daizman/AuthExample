@@ -9,7 +9,7 @@ public class UserController(IAuthService authService) : BaseController
 {
     [AllowAnonymous]
     [HttpPost("signup")]
-    public ActionResult<LogInResponse> SignUp([FromBody] SignUpDto dto)
+    public async Task<ActionResult<LogInResponse>> SignUp([FromBody] SignUpDto dto)
     {
         var token = authService.SignUp(dto);
         return Ok(token);
@@ -17,7 +17,7 @@ public class UserController(IAuthService authService) : BaseController
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public ActionResult<LogInResponse> LogIn([FromBody] LogInDto dto)
+    public async Task<ActionResult<LogInResponse>> LogIn([FromBody] LogInDto dto)
     {
         var result = authService.LogIn(dto);
         if (result is null)
@@ -28,7 +28,7 @@ public class UserController(IAuthService authService) : BaseController
     }
 
     [HttpPost("logout")]
-    public ActionResult<bool> LogOut([FromBody] Guid userId)
+    public async Task<ActionResult<bool>> LogOut([FromBody] Guid userId)
     {
         var result = authService.LogOut(userId);
         if (!result)
@@ -39,7 +39,7 @@ public class UserController(IAuthService authService) : BaseController
     }
 
     [HttpPost("refresh")]
-    public ActionResult<LogInResponse> Refresh([FromBody] string refreshToken)
+    public async Task<ActionResult<LogInResponse>> Refresh([FromBody] string refreshToken)
     {
         var result = authService.Refresh(refreshToken);
         if (result is null)
@@ -50,7 +50,7 @@ public class UserController(IAuthService authService) : BaseController
     }
 
     [HttpDelete("revoke")]
-    public ActionResult Revoke([FromBody] string refreshToken)
+    public async Task<ActionResult> Revoke([FromBody] string refreshToken)
     {
         authService.Revoke(refreshToken);
 
