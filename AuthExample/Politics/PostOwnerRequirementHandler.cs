@@ -22,13 +22,13 @@ public class PostOwnerRequirementHandler(IHttpContextAccessor accessor)
             .Request
             .Query
             .TryGetValue("userId", out var userIdQuery);
-        if (!accessorResult || !userIdQuery.Any())
+        if (!accessorResult || userIdQuery.Count == 0)
         {
             context.Fail();
             return Task.CompletedTask;
         }
 
-        if (userIdClaim.Value != userIdQuery.First())
+        if (userIdClaim.Value != userIdQuery[0])
         {
             context.Fail();
             return Task.CompletedTask;
